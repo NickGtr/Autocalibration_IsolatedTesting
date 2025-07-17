@@ -213,12 +213,11 @@ namespace rootba_povar {
                                                       Scalar height,
                                                       Eigen::Matrix<Scalar, 3, 4> *P_new) {
         Eigen::Matrix<Scalar, 3, 3> T;
-        T << width + height,              0,  (width) / 2,
-                0, width + height, (height) / 2,
+        T << width + height,              0,  width / 2,
+                0, width + height, height / 2,
                 0,              0,                1;
         *P_new = T * P;
     }
-
 
     template <typename Scalar>
     Eigen::Matrix<Scalar, 4, 4> AutoCalibrationLinear<Scalar>::AbsoluteQuadricMatFromVec(const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> &q) {
@@ -376,14 +375,14 @@ namespace rootba_povar {
                          &eigenvalues, &eigenvectors);
 
         if (rank) {
-            double relative_eps = 1e-5;
+            double relative_eps = 1e-3;
             double threshold = relative_eps * eigenvalues(0);
             *rank = 0;
             for (int i = 0; i < 4; ++i) {
                 if (eigenvalues(i) > threshold) (*rank)++;
             }
             if (*rank !=3){
-                std ::cout << eigenvalues.transpose() << std::endl;
+                std ::cout << "Rank : " << *rank << "Eigenvalues : " << eigenvalues.transpose() << std::endl;
             }
         }
 

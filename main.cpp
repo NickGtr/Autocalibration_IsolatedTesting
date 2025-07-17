@@ -18,19 +18,18 @@ int main(){
   // rootba_povar::recoverK_IACvsQR(10,100,10000);
   // rootba_povar::recoverK_IACvsQR(50,100,10000);
 
-rootba_povar::recoverK_detailed_losses(50, 50, 1);
-rootba_povar::recoverK_detailed_losses(50, 50, 100);
+// rootba_povar::recoverK_detailed_losses(10, 50, 1);
+
+// rootba_povar::recoverK_detailed_losses(10, 50, 100);
 
   // rootba_povar::recoverK_varying_focal_length(10, 5000, 1);
   // rootba_povar::recoverK_varying_focal_length(50, 5000, 1);
 
-  // rootba_povar::recoverK_varying_focal_length(10, 5000, 100);
+  rootba_povar::recoverK_varying_focal_length(10, 5000, 100);
 
-  // rootba_povar::recoverK_varying_focal_length(50, 5000, 100);
+  rootba_povar::recoverK_varying_focal_length(50, 5000, 100);
 
   // rootba_povar::recoverK_varying_focal_length(10, 5000, 1000);
   // rootba_povar::recoverK_varying_focal_length(50, 5000, 1000);
-
-  
   return 0;
 }
