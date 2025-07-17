@@ -1,3 +1,0 @@
-/Data/gautt/bundle_adjustment/autocalibration_project/build/_deps/googletest-subbuild/CMakeFiles/googletest-populate.dir
-/Data/gautt/bundle_adjustment/autocalibration_project/build/_deps/googletest-subbuild/CMakeFiles/edit_cache.dir
-/Data/gautt/bundle_adjustment/autocalibration_project/build/_deps/googletest-subbuild/CMakeFiles/rebuild_cache.dir

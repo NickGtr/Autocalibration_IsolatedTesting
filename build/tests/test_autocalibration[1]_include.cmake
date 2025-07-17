@@ -1,5 +1,0 @@
-if(EXISTS "/Data/gautt/bundle_adjustment/autocalibration_project/build/tests/test_autocalibration[1]_tests.cmake")
-  include("/Data/gautt/bundle_adjustment/autocalibration_project/build/tests/test_autocalibration[1]_tests.cmake")
-else()
-  add_test(test_autocalibration_NOT_BUILT test_autocalibration_NOT_BUILT)
-endif()

@@ -1,1 +1,0 @@
-/usr/lib64/ccache/c++ CMakeFiles/test_autocalibration.dir/test_autocalibration.cpp.o CMakeFiles/test_autocalibration.dir/__/libmv.cpp.o -o test_autocalibration  ../lib/libgtest_main.a -lpthread ../lib/libgtest.a
