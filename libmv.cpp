@@ -175,10 +175,36 @@ namespace rootba_povar {
                              Scalar height,
                              Eigen::Matrix<Scalar, 3, 4> *P_new) {
         Eigen::Matrix<Scalar, 3, 3> T;
-        T << width + height,              0,  (width - 1) / 2,
-                0, width + height, (height - 1) / 2,
+        T << width + height,              0,  width / 2,
+                0, width + height, height / 2,
                 0,              0,                1;
         *P_new = T.inverse() * P;
+    }
+
+    template <typename Scalar>
+    void AutoCalibrationLinear<Scalar>::get_rid_of_principal_point(const Eigen::Matrix<Scalar, 3, 4> &P,
+                            Scalar width,
+                            Scalar height,
+                            Eigen::Matrix<Scalar, 3, 4> *P_new){
+        // Nicolas : premultiply the projection matrix to get rid of the principal point assuming that it is dead center.
+        Eigen::Matrix<Scalar, 3, 3> T;
+        T << 1, 0, - width / 2,
+             0, 1,  -height / 2,
+             0, 0, 1;
+        *P_new = T * P;                        
+    }
+
+    template <typename Scalar>
+    void AutoCalibrationLinear<Scalar>::get_back_principal_point(const Eigen::Matrix<Scalar, 3, 4> &P,
+                                                      Scalar width,
+                                                      Scalar height,
+                                                      Eigen::Matrix<Scalar, 3, 4> *P_new) {
+        // Nicolas : postmultiply the projection matrix to recover the original principal point after the calculation
+        Eigen::Matrix<Scalar, 3, 3> T;
+        T << 1, 0, width / 2,
+             0, 1, height / 2,
+             0, 0, 1;
+        *P_new = T * P;
     }
 
     template <typename Scalar>
@@ -187,8 +213,8 @@ namespace rootba_povar {
                                                       Scalar height,
                                                       Eigen::Matrix<Scalar, 3, 4> *P_new) {
         Eigen::Matrix<Scalar, 3, 3> T;
-        T << width + height,              0,  (width - 1) / 2,
-                0, width + height, (height - 1) / 2,
+        T << width + height,              0,  (width) / 2,
+                0, width + height, (height) / 2,
                 0,              0,                1;
         *P_new = T * P;
     }
@@ -249,6 +275,21 @@ namespace rootba_povar {
     }
 
     template <typename Scalar>
+    void AutoCalibrationLinear<Scalar>::AddProjectionConstraints_1997paper(const Eigen::Matrix<Scalar, 3, 4> &P) {
+        Scalar nu = 1.0;
+
+        // Aspect ratio is near 1.
+        constraints_.push_back((wc(P, 0, 0) - wc(P, 1, 1)) / nu);
+
+        // No skew and principal point near 0,0.
+        // Note that there is a typo in the Pollefeys' paper: the 0.01 is not at the
+        // correct equation.
+        constraints_.push_back(wc(P, 0, 1) / nu);
+        constraints_.push_back(wc(P, 0, 2) / nu);
+        constraints_.push_back(wc(P, 1, 2) / nu);
+    }
+
+    template <typename Scalar>
     void AutoCalibrationLinear<Scalar>::SortEigenVectors(const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> &values,
                                  const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> &vectors,
                                  Eigen::Matrix<Scalar, Eigen::Dynamic, 1> *sorted_values,
@@ -286,9 +327,26 @@ namespace rootba_povar {
         return projections_.size() - 1;
     }
 
+    template <typename Scalar>
+    int AutoCalibrationLinear<Scalar>::AddProjection_1997paper(const Eigen::Matrix<Scalar, 3, 4> &P,
+                                                     Scalar width, Scalar height) {
+        Eigen::Matrix<Scalar, 3, 4> P_normalized;
+        //P_normalized = P;
+        get_rid_of_principal_point(P, width, height, &P_normalized);
+
+        AddProjectionConstraints_1997paper(P_normalized);
+
+        // Store input
+        projections_.push_back(P_normalized);
+        widths_.push_back(width);
+        heights_.push_back(height);
+
+        return projections_.size() - 1;
+    }
+
 
     template <typename Scalar>
-    Eigen::Matrix<Scalar, 4, 4> AutoCalibrationLinear<Scalar>::MetricTransformation(Eigen::Matrix<Scalar, 4, 4> *Q_final) {
+    Eigen::Matrix<Scalar, 4, 4> AutoCalibrationLinear<Scalar>::MetricTransformation(Eigen::Matrix<Scalar, 4, 4> *Q_final, int* rank) {
         // Compute the dual absolute quadric, Q.
         Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> A(constraints_.size(), 10);
         for (int i = 0; i < A.rows(); ++i) {
@@ -311,13 +369,23 @@ namespace rootba_povar {
             temp_values = -temp_values;
         }
 
-
         // and sorted, so that last one is 0.
         Eigen::Matrix<Scalar, Eigen::Dynamic, 1> eigenvalues;
         Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> eigenvectors;
         SortEigenVectors(temp_values, eigen_solver.eigenvectors(),
                          &eigenvalues, &eigenvectors);
 
+        if (rank) {
+            double relative_eps = 1e-5;
+            double threshold = relative_eps * eigenvalues(0);
+            *rank = 0;
+            for (int i = 0; i < 4; ++i) {
+                if (eigenvalues(i) > threshold) (*rank)++;
+            }
+            if (*rank !=3){
+                std ::cout << eigenvalues.transpose() << std::endl;
+            }
+        }
 
         // Compute the transformation from the eigen descomposition.  See last
         // paragraph of page 3 in

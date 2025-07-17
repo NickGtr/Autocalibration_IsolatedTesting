@@ -25,13 +25,15 @@ namespace rootba_povar {
 
     void random_Mat4(Mat4& P, double scale = 10);
 
+    double proportional_to_rotation_loss(Mat3 &R);
+
     class FocalLengths_DistributionAndLosses {
         
         // Each focal length has a dictionnary containing : Count, QR_Kcost, QR_Focalcost, QR_PPcost, QR_Skewcost and the IAC equivalents
         using FlLog = std::map<std::string, double>;
         using LossesMap = std::map<size_t, FlLog>;
     public:
-        FocalLengths_DistributionAndLosses(double center, double stddev);
+        FocalLengths_DistributionAndLosses(double center, double stddev, bool use_LogNormal = false);
         void draw_random_fl(size_t num_cams); // Choose the focal lengths according to the distribution for the current reconstruction
         void add_loss(size_t idx, std::string which_loss, double loss); // Add correct loss corresponding to the idx-th image of the reconstrution
         void write_losses(std::string path); // Average losses and write them in a file
@@ -41,9 +43,11 @@ namespace rootba_povar {
     private:
         double center;
         double stddev;
+        bool use_LogNormal;
 
         LossesMap losses_map;
         std::normal_distribution<double> dist;
+        std::lognormal_distribution<double> log_dist;
         std::mt19937 gen;
     };
 }

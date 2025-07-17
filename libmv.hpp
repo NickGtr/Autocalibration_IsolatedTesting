@@ -33,6 +33,8 @@ namespace rootba_povar {
          */
         int AddProjection(const Eigen::Matrix<Scalar, 3, 4> &P, Scalar width, Scalar height);
 
+        int AddProjection_1997paper(const Eigen::Matrix<Scalar, 3, 4> &P, Scalar width, Scalar height);
+
         /** \brief Computes the metric updating transformation.
          *
          *  \return The homography, H, that transforms the space into a metric space.
@@ -41,7 +43,7 @@ namespace rootba_povar {
          *          HZ section 19.1 page 459, and not the notation of Pollefeys'
          *          paper [1].
          */
-        Eigen::Matrix<Scalar, 4, 4> MetricTransformation(Eigen::Matrix<Scalar, 4, 4> *Q_final = nullptr);
+        Eigen::Matrix<Scalar, 4, 4> MetricTransformation(Eigen::Matrix<Scalar, 4, 4> *Q_final = nullptr, int *rank = nullptr);
 
     private:
         /** \brief Add constraints on the absolute quadric based assumptions on the
@@ -62,6 +64,7 @@ namespace rootba_povar {
          */
 
         void AddProjectionConstraints(const Eigen::Matrix<Scalar, 3, 4> &P);
+        void AddProjectionConstraints_1997paper(const Eigen::Matrix<Scalar, 3, 4> &P);
 
         Scalar Nullspace(Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> *A, Eigen::Matrix<Scalar, Eigen::Dynamic, 1> *nullspace);
 
@@ -80,6 +83,16 @@ namespace rootba_povar {
                                         Eigen::Matrix<Scalar, 3, 4> *P_new);
 
         static void DenormalizeProjection(const Eigen::Matrix<Scalar, 3, 4> &P,
+                                          Scalar width,
+                                          Scalar height,
+                                          Eigen::Matrix<Scalar, 3, 4> *P_new);
+
+        static void get_rid_of_principal_point(const Eigen::Matrix<Scalar, 3, 4> &P,
+                                          Scalar width,
+                                          Scalar height,
+                                          Eigen::Matrix<Scalar, 3, 4> *P_new);
+
+        static void get_back_principal_point(const Eigen::Matrix<Scalar, 3, 4> &P,
                                           Scalar width,
                                           Scalar height,
                                           Eigen::Matrix<Scalar, 3, 4> *P_new);

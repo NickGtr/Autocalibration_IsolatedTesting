@@ -86,6 +86,16 @@ namespace rootba_povar {
         tot_diff = sqrt(tot_diff);
         return tot_diff;
     }
+
+    double proportional_to_rotation_loss(Mat3 &R){
+        Eigen::JacobiSVD<Mat3> svd(R, Eigen::ComputeFullU | Eigen::ComputeFullV);
+        double average_singular_value = svd.singularValues().mean();
+        
+        Mat3 RRt = R * R.transpose();
+        Mat3 theoretical_RRt = average_singular_value * average_singular_value * Mat3::Identity();
+        double loss = Mat3_distance(RRt, theoretical_RRt);
+        return loss;
+    }
     
     void K_From_ImageOfTheAbsoluteConic(Mat4 &Q, Mat34 &P, Mat3 *K){
         Mat3 KKt = P * Q * P.transpose();
@@ -99,12 +109,13 @@ namespace rootba_povar {
         double(rand()) / RAND_MAX * scale, double(rand()) / RAND_MAX * scale, double(rand()) / RAND_MAX * scale, double(rand()) / RAND_MAX * scale;
     }
 
-    FocalLengths_DistributionAndLosses::FocalLengths_DistributionAndLosses(double center, double stddev)
-        : center(center), stddev(stddev) 
+    FocalLengths_DistributionAndLosses::FocalLengths_DistributionAndLosses(double center, double stddev, bool use_LogNormal)
+        : center(center), stddev(stddev), use_LogNormal(use_LogNormal)
     {
         std::random_device rd;
         gen = std::mt19937(rd());
         dist = std::normal_distribution<double>(center, stddev);
+        log_dist = std::lognormal_distribution<double>(center, stddev);
     }
 
     void FocalLengths_DistributionAndLosses::add_loss(size_t idx, std::string which_loss, double loss){
@@ -115,7 +126,8 @@ namespace rootba_povar {
         current_focal_lengths.resize(num_cams);
         for (int i = 0; i < num_cams; ++i) {
             double number;
-            do {number = dist(gen);} while (number < 1);
+            if (use_LogNormal) number = log_dist(gen);
+            else do {number = dist(gen);} while (number < 5);
             size_t val = static_cast<size_t>(std::round(number)); // Choose integer focal length
             current_focal_lengths[i] = val;
             losses_map[val]["Count"] += 1;
@@ -131,15 +143,18 @@ namespace rootba_povar {
 
         outFile << "FocalLength\tQR_Kcost\tQR_Focalcost\tQR_PPcost\tQR_Skewcost\tIAC_Kcost\tIAC_Focalcost\tIAC_PPcost\tIAC_Skewcost\n";
         for (auto& [focal_length, losses_list] : losses_map) {
-            outFile << focal_length << "\t"
-                    << losses_list["QR_Kcost"] / losses_list["Count"] << "\t"
-                    << losses_list["QR_Focalcost"] / losses_list["Count"] << "\t"
-                    << losses_list["QR_PPcost"] / losses_list["Count"] << "\t"
-                    << losses_list["QR_Skewcost"] / losses_list["Count"] <<"\t"
-                    << losses_list["IAC_Kcost"] / losses_list["Count"] << "\t"
-                    << losses_list["IAC_Focalcost"] / losses_list["Count"] << "\t"
-                    << losses_list["IAC_PPcost"] / losses_list["Count"] << "\t"
-                    << losses_list["IAC_Skewcost"] / losses_list["Count"] <<"\n";
+            std::cout << losses_list["Count"] << " focal length " << focal_length << std::endl;
+            if (losses_list["Count"] > 15){
+                outFile << focal_length << "\t"
+                        << losses_list["QR_Kcost"] / losses_list["Count"] << "\t"
+                        << losses_list["QR_Focalcost"] / losses_list["Count"] << "\t"
+                        << losses_list["QR_PPcost"] / losses_list["Count"] << "\t"
+                        << losses_list["QR_Skewcost"] / losses_list["Count"] <<"\t"
+                        << losses_list["IAC_Kcost"] / losses_list["Count"] << "\t"
+                        << losses_list["IAC_Focalcost"] / losses_list["Count"] << "\t"
+                        << losses_list["IAC_PPcost"] / losses_list["Count"] << "\t"
+                        << losses_list["IAC_Skewcost"] / losses_list["Count"] <<"\n";
+            }
         }
         outFile.close();
     }
