@@ -88,12 +88,11 @@ namespace rootba_povar {
     }
 
     double proportional_to_rotation_loss(Mat3 &R){
-        Eigen::JacobiSVD<Mat3> svd(R, Eigen::ComputeFullU | Eigen::ComputeFullV);
-        double average_singular_value = svd.singularValues().mean();
-        
         Mat3 RRt = R * R.transpose();
-        Mat3 theoretical_RRt = average_singular_value * average_singular_value * Mat3::Identity();
-        double loss = Mat3_distance(RRt, theoretical_RRt);
+        double average_diagonal = (RRt(0,0) + RRt(1,1) + RRt(2,2)) / 3.0;
+        RRt /= average_diagonal; // Normalize the trace to 1
+        Mat3 identity = Mat3::Identity();
+        double loss = Mat3_distance(RRt, identity);
         return loss;
     }
     
@@ -120,6 +119,11 @@ namespace rootba_povar {
 
     void FocalLengths_DistributionAndLosses::add_loss(size_t idx, std::string which_loss, double loss){
             losses_map[current_focal_lengths[idx]][which_loss] += loss;
+            if (which_loss == "QR_Kcost") {
+                losses_map[current_focal_lengths[idx]]["maxQR_Kcost"] = std::max(losses_map[current_focal_lengths[idx]]["maxQR_Kcost"], loss);
+            } else if (which_loss == "IAC_Kcost") {
+                losses_map[current_focal_lengths[idx]]["maxIAC_Kcost"] = std::max(losses_map[current_focal_lengths[idx]]["maxIAC_Kcost"], loss);
+            }
     }
 
     void FocalLengths_DistributionAndLosses::draw_random_fl(size_t num_cams){
@@ -141,21 +145,51 @@ namespace rootba_povar {
             std::cerr << "Erros opening file for writing!" << std::endl;
         }
 
-        outFile << "FocalLength\tQR_Kcost\tQR_Focalcost\tQR_PPcost\tQR_Skewcost\tIAC_Kcost\tIAC_Focalcost\tIAC_PPcost\tIAC_Skewcost\n";
+        outFile << "FocalLength\tQR_Kcost\tmaxQR_Kcost\tQR_Focalcost\tQR_PPcost\tQR_Skewcost\tQR_RRtcost\tIAC_Kcost\tmaxIAC_Kcost\tIAC_Focalcost\tIAC_PPcost\tIAC_Skewcost\tIAC_RRtcost\n";
         for (auto& [focal_length, losses_list] : losses_map) {
-            std::cout << losses_list["Count"] << " focal length " << focal_length << std::endl;
             if (losses_list["Count"] > 15){
                 outFile << focal_length << "\t"
                         << losses_list["QR_Kcost"] / losses_list["Count"] << "\t"
+                        << losses_list["maxQR_Kcost"] << "\t"
                         << losses_list["QR_Focalcost"] / losses_list["Count"] << "\t"
                         << losses_list["QR_PPcost"] / losses_list["Count"] << "\t"
                         << losses_list["QR_Skewcost"] / losses_list["Count"] <<"\t"
+                        << losses_list["QR_RRtcost"] / losses_list["Count"] << "\t"
                         << losses_list["IAC_Kcost"] / losses_list["Count"] << "\t"
+                        << losses_list["maxIAC_Kcost"] << "\t"
                         << losses_list["IAC_Focalcost"] / losses_list["Count"] << "\t"
                         << losses_list["IAC_PPcost"] / losses_list["Count"] << "\t"
-                        << losses_list["IAC_Skewcost"] / losses_list["Count"] <<"\n";
+                        << losses_list["IAC_Skewcost"] / losses_list["Count"] <<"\t"
+                        << losses_list["IAC_RRtcost"] / losses_list["Count"] << "\n";
             }
         }
         outFile.close();
+    }
+
+    void FocalLengths_DistributionAndLosses::write_losses_for_a_given_translation_range(std::ofstream &outFile, double translation_range, double Rank3Rate){
+        for (auto& [focal_length, losses_list] : losses_map) {
+            if (losses_list["Count"] > 15){
+                outFile << translation_range << "\t"
+                        << focal_length << "\t"
+                        << losses_list["QR_Kcost"] / losses_list["Count"] << "\t"
+                        << losses_list["maxQR_Kcost"] << "\t"
+                        << losses_list["QR_Focalcost"] / losses_list["Count"] << "\t"
+                        << losses_list["QR_PPcost"] / losses_list["Count"] << "\t"
+                        << losses_list["QR_Skewcost"] / losses_list["Count"] <<"\t"
+                        << losses_list["QR_RRtcost"] / losses_list["Count"] << "\t"
+                        << losses_list["IAC_Kcost"] / losses_list["Count"] << "\t"
+                        << losses_list["maxIAC_Kcost"] << "\t"
+                        << losses_list["IAC_Focalcost"] / losses_list["Count"] << "\t"
+                        << losses_list["IAC_PPcost"] / losses_list["Count"] << "\t"
+                        << losses_list["IAC_Skewcost"] / losses_list["Count"] <<"\t"
+                        << losses_list["IAC_RRtcost"] / losses_list["Count"] << "\t"
+                        << Rank3Rate << "\n";
+            }
+        }
+    }
+
+    void FocalLengths_DistributionAndLosses::clear() {
+        losses_map.clear();
+        current_focal_lengths.clear();
     }
 }

@@ -381,9 +381,9 @@ namespace rootba_povar {
             for (int i = 0; i < 4; ++i) {
                 if (eigenvalues(i) > threshold) (*rank)++;
             }
-            if (*rank !=3){
-                std ::cout << "Rank : " << *rank << "Eigenvalues : " << eigenvalues.transpose() << std::endl;
-            }
+            // if (*rank !=3){
+            //     std::cout << "Rank : " << *rank << "Eigenvalues : " << eigenvalues.transpose() << std::endl;
+            // }
         }
 
         // Compute the transformation from the eigen descomposition.  See last

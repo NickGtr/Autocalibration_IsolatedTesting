@@ -36,7 +36,9 @@ namespace rootba_povar {
         FocalLengths_DistributionAndLosses(double center, double stddev, bool use_LogNormal = false);
         void draw_random_fl(size_t num_cams); // Choose the focal lengths according to the distribution for the current reconstruction
         void add_loss(size_t idx, std::string which_loss, double loss); // Add correct loss corresponding to the idx-th image of the reconstrution
-        void write_losses(std::string path); // Average losses and write them in a file
+        void write_losses(std::string path); // Average losses and write them in a file for each focal length
+        void write_losses_for_a_given_translation_range(std::ofstream &outFile, double translation_range, double Rank3Rate);
+        void clear();
 
         std::vector<size_t> current_focal_lengths;
 

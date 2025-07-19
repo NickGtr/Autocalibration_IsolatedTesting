@@ -15,4 +15,7 @@ namespace rootba_povar {
 
     void recoverK_varying_focal_length(int num_cams = 10, int num_reconstructions = 100, double translation_range = 1);
 
+    void recoverK_FIXED_IACvsQR_effect_of_translation_range(int num_cams, int num_reconstructions, int equivalent_focal_length);
+
+    void recoverK_VARYING_IACvsQR_effect_of_translation_range(int num_cams, int num_reconstructions);
 }
