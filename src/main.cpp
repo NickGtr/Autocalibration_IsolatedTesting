@@ -35,13 +35,18 @@ int main(){
   // rootba_povar::recoverK_varying_focal_length(10, 5000, 1000);
   // rootba_povar::recoverK_varying_focal_length(50, 5000, 1000);
 
-  rootba_povar::recoverK_FIXED_IACvsQR_effect_of_translation_range(10, 50, 40);
-  rootba_povar::recoverK_FIXED_IACvsQR_effect_of_translation_range(50, 50, 40);
+  // rootba_povar::recoverK_FIXED_IACvsQR_effect_of_translation_range(10, 50, 40);
+  // rootba_povar::recoverK_FIXED_IACvsQR_effect_of_translation_range(50, 50, 40);
 
   // rootba_povar::recoverK_FIXED_IACvsQR_effect_of_translation_range(10, 50, 30);
   // rootba_povar::recoverK_FIXED_IACvsQR_effect_of_translation_range(50, 50, 30);
 
   // rootba_povar::recoverK_VARYING_IACvsQR_effect_of_translation_range(10, 50);
+  // rootba_povar::recoverK_VARYING_IACvsQR_effect_of_translation_range(50, 50);
+
+  // rootba_povar::recoverK_VARYING_IACvsQR_effect_of_translation_range(10, 500);
+  rootba_povar::recoverK_VARYING_IACvsQR_effect_of_translation_range(50, 500);
+
 
   return 0;
 }

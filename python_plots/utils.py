@@ -6,9 +6,12 @@ import math
 import os
 from scipy.stats import lognorm
 
-base_path = "/Data/gautt/bundle_adjustment/autocalibration_project/results"
+base_path = "../results"
 
 def QRvsIAC_10vs50(num_reconstructions, translation_range, ylim = None):
+    """ Read and display comparison between QR and IAC methods for recovering K over 10 and 50 cameras
+        using 1997 Pollefeys method to recover absolute quadric"""
+
     # Load both datasets
     file_name_10 = f"QRvsIAC_10Cams_{num_reconstructions}Reconstr_{translation_range}Transl.txt"
     file_name_50 = f"QRvsIAC_50Cams_{num_reconstructions}Reconstr_{translation_range}Transl.txt"
@@ -46,6 +49,8 @@ def QRvsIAC_10vs50(num_reconstructions, translation_range, ylim = None):
     plt.show()
 
 def QRvsIAC_10vs50_1997paper(num_reconstructions, translation_range, ylim = None):
+    """ Read and display comparison between QR and IAC methods for recovering K over 10 and 50 cameras
+        using 1997 Pollefeys method to recover absolute quadric"""
     # Load both datasets
     file_name_10 = f"QRvsIAC_10Cams_{num_reconstructions}Reconstr_{translation_range}Transl_1997paper.txt"
     file_name_50 = f"QRvsIAC_50Cams_{num_reconstructions}Reconstr_{translation_range}Transl_1997paper.txt"

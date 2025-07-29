@@ -95,6 +95,19 @@ namespace rootba_povar {
         double loss = Mat3_distance(RRt, identity);
         return loss;
     }
+
+    Mat34 add_noise_to_P(const Mat34 &P, double noise_multiplicator){
+        static std::mt19937 gen(std::random_device{}());
+        static std::normal_distribution<double> dist(0.0, 1.0);
+        double average_coefficient_size = P.norm() / std::sqrt(12.0); // Assuming uniform distribution, the average coefficient size is the norm divided by sqrt(12)
+        Mat34 noise;
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                noise(i, j) = dist(gen) * average_coefficient_size * noise_multiplicator;
+            }
+        }
+        return P + noise;
+    }
     
     void K_From_ImageOfTheAbsoluteConic(Mat4 &Q, Mat34 &P, Mat3 *K){
         Mat3 KKt = P * Q * P.transpose();

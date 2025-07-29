@@ -18,6 +18,3 @@ endif()
 include_directories(/Data/gautt/bundle_adjustment/robust_povar/external/eigen)
 
 add_executable(autocalibration main.cpp libmv.cpp testing_functions.cpp utils_for_testing.cpp)
-
-enable_testing()
-add_subdirectory(tests)

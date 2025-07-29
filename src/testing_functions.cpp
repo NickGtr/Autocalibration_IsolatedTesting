@@ -6,6 +6,8 @@
 #include <sstream>
 
 namespace rootba_povar {
+
+    
     void test_K_From_AbsoluteConic(){
         Mat3 K, Kp;
             K << 10,  1, 30,
@@ -53,11 +55,11 @@ namespace rootba_povar {
         const double width = 36, height = 24;
 
         std::stringstream path;
-        path << "/Data/gautt/bundle_adjustment/autocalibration_project/results/QRvsIAC_"
+        path << "../results/QRvsIAC_"
             << num_cams << "Cams_"
             << num_reconstructions << "Reconstr_"
             << translation_range << "Transl.txt";
-        // path << "/Data/gautt/bundle_adjustment/autocalibration_project/results/QRvsIAC_focal_length_" << num_cams << "cams.txt";
+        // path << "../results/QRvsIAC_focal_length_" << num_cams << "cams.txt";
         std::cout << "writing : " << path.str() << std::endl;
         std::ofstream outFile(path.str());
 
@@ -121,7 +123,7 @@ namespace rootba_povar {
         // Max range of camera_translation when picking a translation at random
 
         std::stringstream path;
-        path << "/Data/gautt/bundle_adjustment/autocalibration_project/results/RecoverK&R_detailed_"
+        path << "../results/RecoverK&R_detailed_"
              << num_cams << "Cams_"
              << num_reconstructions << "Reconstr_"
              << translation_range << "Transl.txt";
@@ -237,7 +239,7 @@ namespace rootba_povar {
             0, 0, 1;
 
         std::stringstream path;
-        path << "/Data/gautt/bundle_adjustment/autocalibration_project/results/Effect_of_translation_range_"
+        path << "../results/Effect_of_translation_range_"
             << num_cams << "Cams_"
             << num_reconstructions << "Reconstr_"
             << equivalent_focal_length << "FocalLength_2004paper.txt";
@@ -397,7 +399,7 @@ namespace rootba_povar {
             }
         }
         std::stringstream path;
-        path << "/Data/gautt/bundle_adjustment/autocalibration_project/results/RecoverK&R_varying_detailed_"
+        path << "../results/RecoverK&R_varying_detailed_"
              << num_cams << "Cams_"
              << num_reconstructions << "Reconstr_"
              << translation_range << "Transl"
@@ -429,7 +431,7 @@ namespace rootba_povar {
         const double logStep = (logEnd - logStart) / steps;
 
         std::stringstream path;
-        path << "/Data/gautt/bundle_adjustment/autocalibration_project/results/Effect_of_translation_range_varying_"
+        path << "../results/Effect_of_translation_range_varying_"
              << num_cams << "Cams_"
              << num_reconstructions << "Reconstr_"
              << "CamDistLogN(" << center << "," << stddev << ").txt";
@@ -440,7 +442,7 @@ namespace rootba_povar {
             std::cerr << "Errors opening file for writing!" << std::endl;
         }
 
-        outFile << "TranslationRange\tFocalLength\tQR_Kcost\tQR_Focalcost\tQR_PPcost\tQR_Skewcost\tQR_RRtcost\tIAC_Kcost\tIAC_Focalcost\tIAC_PPcost\tIAC_Skewcost\tIAC_RRtcost\tRank3Rate\n";
+        outFile << "TranslationRange\tFocalLength\tQR_Kcost\tmaxQR_Kcost\tQR_Focalcost\tQR_PPcost\tQR_Skewcost\tQR_RRtcost\tIAC_Kcost\tmaxIAC_Kcost\tIAC_Focalcost\tIAC_PPcost\tIAC_Skewcost\tIAC_RRtcost\tRank3Rate\n";
         for (size_t current_step = 0; current_step < steps; ++current_step){
             fl.clear();
             double translation_range = std::pow(10, logStart + current_step * logStep);

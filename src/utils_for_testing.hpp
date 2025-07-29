@@ -27,6 +27,8 @@ namespace rootba_povar {
 
     double proportional_to_rotation_loss(Mat3 &R);
 
+    Mat34 add_noise_to_P(const Mat34 &P, double noise_multiplicator);
+
     class FocalLengths_DistributionAndLosses {
         
         // Each focal length has a dictionnary containing : Count, QR_Kcost, QR_Focalcost, QR_PPcost, QR_Skewcost and the IAC equivalents
